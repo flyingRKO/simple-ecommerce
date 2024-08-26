@@ -19,6 +19,7 @@ public class Payment {
     private Long amountKRW;
     private PaymentMethodType paymentMethodType;
     private String paymentData;
+    @Enumerated(EnumType.STRING)
     private PaymentStatus paymentStatus;
 
     @Column(unique = true)

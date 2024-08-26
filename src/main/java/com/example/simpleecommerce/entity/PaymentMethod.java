@@ -16,6 +16,7 @@ public class PaymentMethod {
 
     private Long userId;
 
+    @Enumerated(EnumType.STRING)
     private PaymentMethodType paymentMethodType;
 
     private String creditCardNumber;
