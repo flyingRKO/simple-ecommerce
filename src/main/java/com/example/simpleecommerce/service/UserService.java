@@ -3,6 +3,8 @@ package com.example.simpleecommerce.service;
 import com.example.simpleecommerce.dto.response.SignUpResponse;
 import com.example.simpleecommerce.dto.response.UserResponse;
 import com.example.simpleecommerce.entity.UserEntity;
+import com.example.simpleecommerce.exception.ErrorCode;
+import com.example.simpleecommerce.exception.SimpleEcommerceException;
 import com.example.simpleecommerce.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,7 +21,7 @@ public class UserService {
     @Transactional
     public SignUpResponse signUp(String email, String password){
         userRepository.findByEmail(email).ifPresent(user -> {
-            throw new IllegalArgumentException("Email already exist");
+            throw new SimpleEcommerceException(ErrorCode.DUPLICATED_EMAIL);
         });
         UserEntity savedUser = userRepository.save(UserEntity.of(email, password));
         return SignUpResponse.from(savedUser);

@@ -2,11 +2,11 @@ package com.example.simpleecommerce.controller;
 
 
 import com.example.simpleecommerce.dto.request.SignUpRequest;
+import com.example.simpleecommerce.dto.response.Response;
 import com.example.simpleecommerce.dto.response.SignUpResponse;
 import com.example.simpleecommerce.dto.response.UserResponse;
 import com.example.simpleecommerce.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,9 +18,9 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/signUp")
-    public ResponseEntity<SignUpResponse> signUp(@RequestBody SignUpRequest request) {
+    public Response<SignUpResponse> signUp(@RequestBody SignUpRequest request) {
         SignUpResponse response = userService.signUp(request.email(), request.password());
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return Response.success(response);
     }
 
     @GetMapping("/users/{id}")

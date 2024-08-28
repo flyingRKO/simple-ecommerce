@@ -1,9 +1,13 @@
 package com.example.simpleecommerce.service;
 
+import com.example.simpleecommerce.dto.response.PaymentMethodResponse;
+import com.example.simpleecommerce.dto.response.PaymentResponse;
 import com.example.simpleecommerce.entity.Payment;
 import com.example.simpleecommerce.entity.PaymentMethod;
 import com.example.simpleecommerce.enums.PaymentMethodType;
 import com.example.simpleecommerce.enums.PaymentStatus;
+import com.example.simpleecommerce.exception.ErrorCode;
+import com.example.simpleecommerce.exception.SimpleEcommerceException;
 import com.example.simpleecommerce.pg.CreditCardPaymentAdapter;
 import com.example.simpleecommerce.repository.PaymentMethodRepository;
 import com.example.simpleecommerce.repository.PaymentRepository;
@@ -17,20 +21,21 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final CreditCardPaymentAdapter creditCardPaymentAdapter;
 
-    public PaymentMethod registerPaymentMethod(Long userId, PaymentMethodType paymentMethodType, String creditCardNumber) {
-         return paymentMethodRepository.save(PaymentMethod.of(
-            userId, paymentMethodType, creditCardNumber
-        ));
+    public PaymentMethodResponse registerPaymentMethod(Long userId, PaymentMethodType paymentMethodType, String creditCardNumber) {
+
+        PaymentMethod paymentMethod = paymentMethodRepository.save(PaymentMethod.of(userId, paymentMethodType, creditCardNumber));
+
+        return PaymentMethodResponse.from(paymentMethod);
     }
 
-    public Payment processPayment(
+    public PaymentResponse processPayment(
             Long userId,
             Long orderId,
             Long amountKRW,
             Long paymentMethodId) throws Exception {
         var paymentMethod = paymentMethodRepository.findById(paymentMethodId).orElseThrow();
         if (paymentMethod.getPaymentMethodType() != PaymentMethodType.CREDIT_CARD) {
-            throw new Exception("Not supported payment method");
+            throw new SimpleEcommerceException(ErrorCode.NOT_SUPPORTED_PAYMENT_METHOD);
         }
 
         var refCode = creditCardPaymentAdapter.processCreditPayment(amountKRW, paymentMethod.getCreditCardNumber());
@@ -44,15 +49,18 @@ public class PaymentService {
                 PaymentStatus.COMPLETED,
                 refCode
         );
-        return paymentRepository.save(payment);
+        paymentRepository.save(payment);
+        return PaymentResponse.from(payment);
     }
 
-    public PaymentMethod getPaymentMethod(Long userId){
-        return paymentMethodRepository.findByUserId(userId).stream().findFirst().orElseThrow();
+    public PaymentMethodResponse getPaymentMethod(Long userId){
+        PaymentMethod paymentMethod = paymentMethodRepository.findByUserId(userId).stream().findFirst().orElseThrow();
+        return PaymentMethodResponse.from(paymentMethod);
     }
 
-    public Payment getPayment(Long paymentId){
-        return paymentRepository.findById(paymentId).orElseThrow();
+    public PaymentResponse getPayment(Long paymentId){
+        Payment payment = paymentRepository.findById(paymentId).orElseThrow();
+        return PaymentResponse.from(payment);
     }
 
 }
