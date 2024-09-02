@@ -13,6 +13,7 @@ import com.example.simpleecommerce.repository.PaymentMethodRepository;
 import com.example.simpleecommerce.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +22,7 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final CreditCardPaymentAdapter creditCardPaymentAdapter;
 
+    @Transactional
     public PaymentMethodResponse registerPaymentMethod(Long userId, PaymentMethodType paymentMethodType, String creditCardNumber) {
 
         PaymentMethod paymentMethod = paymentMethodRepository.save(PaymentMethod.of(userId, paymentMethodType, creditCardNumber));
@@ -28,6 +30,7 @@ public class PaymentService {
         return PaymentMethodResponse.from(paymentMethod);
     }
 
+    @Transactional
     public PaymentResponse processPayment(
             Long userId,
             Long orderId,
@@ -53,11 +56,13 @@ public class PaymentService {
         return PaymentResponse.from(payment);
     }
 
+    @Transactional(readOnly = true)
     public PaymentMethodResponse getPaymentMethod(Long userId){
         PaymentMethod paymentMethod = paymentMethodRepository.findByUserId(userId).stream().findFirst().orElseThrow();
         return PaymentMethodResponse.from(paymentMethod);
     }
 
+    @Transactional(readOnly = true)
     public PaymentResponse getPayment(Long paymentId){
         Payment payment = paymentRepository.findById(paymentId).orElseThrow();
         return PaymentResponse.from(payment);
