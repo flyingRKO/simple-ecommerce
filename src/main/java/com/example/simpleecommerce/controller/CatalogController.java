@@ -2,11 +2,14 @@ package com.example.simpleecommerce.controller;
 
 import com.example.simpleecommerce.dto.request.DecreaseStockCountRequest;
 import com.example.simpleecommerce.dto.request.ProductRequest;
+import com.example.simpleecommerce.dto.request.SearchProductRequest;
 import com.example.simpleecommerce.dto.response.ProductResponse;
 import com.example.simpleecommerce.dto.response.Response;
 import com.example.simpleecommerce.entity.Product;
 import com.example.simpleecommerce.service.CatalogService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -50,5 +53,10 @@ public class CatalogController {
     @PostMapping("/catalog/products/{productId}/decreaseStockCount")
     public Response<ProductResponse> decreaseStockCount(@PathVariable Long productId, @RequestBody DecreaseStockCountRequest request) {
         return Response.success(catalogService.decreaseStockCount(productId, request.decreaseCount()));
+    }
+
+    @GetMapping("/catalog/search")
+    public Response<Page<ProductResponse>> searchProducts(@RequestBody SearchProductRequest request, Pageable pageable){
+        return Response.success(catalogService.searchProducts(request.productName(), request.tagName(), pageable));
     }
 }

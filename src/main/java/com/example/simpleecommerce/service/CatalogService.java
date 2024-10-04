@@ -8,6 +8,8 @@ import com.example.simpleecommerce.exception.SimpleEcommerceException;
 import com.example.simpleecommerce.repository.ProductRepository;
 import com.example.simpleecommerce.repository.TagRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -80,6 +82,13 @@ public class CatalogService {
         product.setStockCount(newStockCount);
         productRepository.save(product);
         return ProductResponse.from(product);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ProductResponse> searchProducts(String productName, String tagName, Pageable pageable) {
+        return productRepository.searchProducts(productName, tagName, pageable)
+                .map(ProductResponse::from);
+
     }
 
 }
